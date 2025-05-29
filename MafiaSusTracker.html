@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mafia Sus Tracker</title>
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --bg-color-light: #ffffff;
+      --text-color-light: #111827;
+      --bg-color-dark: #1f2937;
+      --text-color-dark: #f9fafb;
+      --tile-bg-light: #f3f4f6;
+      --tile-bg-dark: #374151;
+    }body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--bg-color-light);
+  color: var(--text-color-light);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--bg-color-dark);
+    color: var(--text-color-dark);
+  }
+  .player-tile {
+    background-color: var(--tile-bg-dark);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .player-tile {
+    background-color: var(--tile-bg-light);
+  }
+}
+
+.floating-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 30px;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.player-tile {
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dead-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.collapsed-section {
+  margin-top: 10px;
+}
+
+.role-input {
+  margin-top: 10px;
+  width: 100%;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.suspect-list {
+  margin-top: 20px;
+}
+
+.trusted-list {
+  margin-top: 20px;
+}
+
+.suspect-list label {
+  display: block;
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  padding: 5px 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.new-game-btn {
+  margin: 15px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+  </style>
+</head>
+<body>
+  <h2 style="margin-left: 15px">Mafia Sus Tracker</h2>
+  <button class="new-game-btn" onclick="resetGame()">New Game</button>
+  <div id="playerContainer"></div>
+  <button class="floating-btn" onclick="addPlayer()">+</button>  <script>
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+
+    function savePlayers() {
+      localStorage.setItem('players', JSON.stringify(players));
+    }
+
+    function resetGame() {
+      if (confirm('You are about to create a new game. All data will be lost.')) {
+        players = [];
+        savePlayers();
+        renderPlayers();
+      }
+    }
+
+    function addPlayer() {
+      const name = prompt('Enter player name:');
+      if (!name) return;
+      players.push({ name, role: '', dead: false, suspects: [] });
+      savePlayers();
+      renderPlayers();
+    }
+
+    function toggleDead(index) {
+      players[index].dead = !players[index].dead;
+      savePlayers();
+      renderPlayers();
+    }
+
+    function updateRole(index, value) {
+      players[index].role = value;
+      savePlayers();
+    }
+
+    function toggleSuspect(index, suspect) {
+      const list = players[index].suspects;
+      const idx = list.indexOf(suspect);
+      if (idx === -1) list.push(suspect);
+      else list.splice(idx, 1);
+      savePlayers();
+    }
+   function toggleTrusted(index, trust) {
+      const list = players[index].trusted;
+      const idx = list.indexOf(trust);
+      if (idx === -1) list.push(trust);
+      else list.splice(idx, 1);
+      savePlayers();
+    }
+    function deletePlayer(index) {
+      players.splice(index, 1);
+      savePlayers();
+      renderPlayers();
+    }
+
+    function renderPlayers() {
+      const container = document.getElementById('playerContainer');
+      container.innerHTML = '';
+
+      players.forEach((player, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'player-tile';
+        if (player.dead) tile.style.opacity = '0.5';
+
+        const header = document.createElement('div');
+        header.className = 'player-header';
+
+        const name = document.createElement('div');
+        name.textContent = player.name;
+        name.style.fontSize = '20px';
+
+        const deadBtn = document.createElement('button');
+        deadBtn.innerHTML = '💀';
+        deadBtn.className = 'dead-btn';
+        deadBtn.onclick = () => toggleDead(index);
+
+        const toggle = document.createElement('button');
+        toggle.textContent = '⬇️';
+        toggle.className = 'dead-btn';
+        toggle.onclick = () => {
+          section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        };
+
+        header.append(name, deadBtn, toggle);
+        tile.appendChild(header);
+
+        const section = document.createElement('div');
+        section.className = 'collapsed-section';
+        section.style.display = 'none';
+
+        const roleInput = document.createElement('input');
+        roleInput.placeholder = player.role || 'Assign role';
+        roleInput.className = 'role-input';
+        roleInput.onchange = (e) => updateRole(index, e.target.value);
+        section.appendChild(roleInput);
+
+        const suspectLabel = document.createElement('div');
+        suspectLabel.textContent = 'Suspect List:';
+        suspectLabel.style.marginTop = '10px';
+        suspectLabel.style.fontWeight = 'bold';
+        section.appendChild(suspectLabel);
+
+        const suspectList = document.createElement('div');
+        suspectList.className = 'suspect-list';
+        
+        const trustedLabel = document.createElement('div');
+        trustedLabel.textContent = 'Trusted List:';
+        trustedLabel.style.marginTop = '10px';
+        trustedLabel.style.fontWeight = 'bold';
+        section.appendChild(trustedLabel);
+
+        const trustedList = document.createElement('div');
+        trustedList.className = 'trusted-list';
+
+        players.forEach((p, i) => {
+          if (i === index) return;
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = player.suspects.includes(p.name);
+          checkbox.onchange = () => toggleSuspect(index, p.name);
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(' ' + p.name));
+          suspectList.appendChild(label);
+          trustedList.appendChild(label);
+        });
+        section.appendChild(suspectList);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete Player';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.onclick = () => deletePlayer(index);
+        section.appendChild(deleteBtn);
+
+        tile.appendChild(section);
+        container.appendChild(tile);
+      });
+    }
+
+    renderPlayers();
+  </script></body>
+</html>
