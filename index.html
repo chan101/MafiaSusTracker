@@ -142,7 +142,7 @@
     function addPlayer() {
       const name = prompt('Enter player name:');
       if (!name) return;
-      players.push({ name, role: '', dead: false, suspects: [] });
+      players.push({ name, role: '', dead: false, suspects: [], trusted: [] });
       savePlayers();
       renderPlayers();
     }
@@ -237,19 +237,34 @@
         const trustedList = document.createElement('div');
         trustedList.className = 'trusted-list';
 
-        players.forEach((p, i) => {
-          if (i === index) return;
-          const label = document.createElement('label');
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = player.suspects.includes(p.name);
-          checkbox.onchange = () => toggleSuspect(index, p.name);
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(' ' + p.name));
-          suspectList.appendChild(label);
-          trustedList.appendChild(label);
-        });
+        // Suspect list
+players.forEach((p, i) => {
+  if (i === index) return;
+  const label = document.createElement('label');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = player.suspects.includes(p.name);
+  checkbox.onchange = () => toggleSuspect(index, p.name);
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(' ' + p.name));
+  suspectList.appendChild(label);
+});
+
+// Trusted list
+players.forEach((p, i) => {
+  if (i === index) return;
+  const label = document.createElement('label');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  // use player.trusted, make sure it's initialized!
+  checkbox.checked = player.trusted && player.trusted.includes(p.name);
+  checkbox.onchange = () => toggleTrusted(index, p.name);
+  label.appendChild(checkbox);
+  label.appendChild(document.createTextNode(' ' + p.name));
+  trustedList.appendChild(label);
+});
         section.appendChild(suspectList);
+section.appendChild(trustedList);
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Delete Player';
