@@ -227,15 +227,6 @@
 
         const suspectList = document.createElement('div');
         suspectList.className = 'suspect-list';
-        
-        const trustedLabel = document.createElement('div');
-        trustedLabel.textContent = 'Trusted List:';
-        trustedLabel.style.marginTop = '10px';
-        trustedLabel.style.fontWeight = 'bold';
-        section.appendChild(trustedLabel);
-
-        const trustedList = document.createElement('div');
-        trustedList.className = 'trusted-list';
 
         // Suspect list
 players.forEach((p, i) => {
@@ -249,6 +240,16 @@ players.forEach((p, i) => {
   label.appendChild(document.createTextNode(' ' + p.name));
   suspectList.appendChild(label);
 });
+
+const trustedLabel = document.createElement('div');
+        trustedLabel.textContent = 'Trusted List:';
+        trustedLabel.style.marginTop = '10px';
+        trustedLabel.style.fontWeight = 'bold';
+        section.appendChild(trustedLabel);
+
+        const trustedList = document.createElement('div');
+        trustedList.className = 'trusted-list';
+
 
 // Trusted list
 players.forEach((p, i) => {
