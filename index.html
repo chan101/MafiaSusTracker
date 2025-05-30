@@ -240,6 +240,7 @@ players.forEach((p, i) => {
   label.appendChild(document.createTextNode(' ' + p.name));
   suspectList.appendChild(label);
 });
+section.appendChild(suspectList);
 
 const trustedLabel = document.createElement('div');
         trustedLabel.textContent = 'Trusted List:';
@@ -264,7 +265,7 @@ players.forEach((p, i) => {
   label.appendChild(document.createTextNode(' ' + p.name));
   trustedList.appendChild(label);
 });
-        section.appendChild(suspectList);
+        
 section.appendChild(trustedList);
 
         const deleteBtn = document.createElement('button');
